@@ -145,6 +145,25 @@ function App() {
     }
   }
 
+  async function withdrawFunds(): Promise<void> {
+    const abi: any = require('./MyContractAbi.json');
+    const web3 = new Web3(window.ethereum);
+    const myContract: any = new web3.eth.Contract(abi, deployedAddress);
+    myContract.handleRevert = true;
+
+    try {
+      const receipt: any = await myContract.methods.withdraw().send({
+        from: connectedAccount,
+        gas: 1000000,
+        gasPrice: '10000000000',
+      });
+      setErrMsg('');
+    } catch (error) {
+      setErrMsg(error.toString());
+      console.error(error);
+    }
+  }
+
   const handleChange = event => {
     setDeposit(event.target.value);
   };
@@ -190,6 +209,14 @@ function App() {
         <button onClick={() => getTokenBalance()}>Get balance of tokens locked in SC</button>
         <h2>Token balance locked in SC is: {tokenBalance}</h2>
       </div>
+
+      {/* Withdraw LINK tokens from SC */}
+      <button onClick={() => withdrawFunds()}>Withdraw LINK tokens from SC</button>
+
+      {/* Display chainlink price */}
+      {/* <h2>Chainlink price is: {chainlinkPrice}</h2> */}
+
+      <h2>Potential error message: {errMsg}</h2>
     </>
   );
 }
