@@ -29,6 +29,34 @@ function App() {
     }
   }
 
+  async function deploySC(): Promise<void> {
+    const bytecode: string = "BIN OF YOUR SC GOES HERE";
+    
+    const abi = require('./MyContractAbi.json');
+    const web3 = new Web3(window.ethereum);
+
+    const myContract: any = new web3.eth.Contract(abi);
+    myContract.handleRevert = true;
+    console.log('deployer account:', connectedAccount);
+    const contractDeployer: any = myContract.deploy({
+      data: '0x' + bytecode,
+      arguments: [1],
+    });
+  
+    try {
+      const tx: any = await contractDeployer.send({
+        from: connectedAccount,
+        gas: 1000000,
+        gasPrice: '10000000000',
+      });
+      setDeployedAddress(tx.options.address);
+      console.log('Contract deployed at address: ' + tx.options.address);
+    } catch (error) {
+      console.error(error);
+    }
+   
+  }
+
   
 
   return (
@@ -38,6 +66,10 @@ function App() {
 
       {/* Display the connected account */}
       <h2>Connected to: {connectedAccount}</h2>
+
+      {/* Button to trigger SC deployment */}
+      <button onClick={() => deploySC()}>Deploy smart contract</button>
+      <h2>SC deployed at: {deployedAddress}</h2>
 
       
     </>
