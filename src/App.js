@@ -57,6 +57,24 @@ function App() {
    
   }
 
+  async function interactSC(): Promise<void> {
+    const deployedAddress: string = "0x40d9B3101C0565b39407c3C14C479E6F8bfCBa7B";
+
+    // Create a new contract object using the ABI and bytecode
+    const abi: any = require('./MyContractAbi.json');
+    const web3 = new Web3(window.ethereum);
+    const myContract: any = new web3.eth.Contract(abi, deployedAddress);
+    myContract.handleRevert = true;
+
+    try {
+      // Get the current value of chainlink
+      const response: string = await myContract.methods.getChainlinkDataFeedLatestAnswer().call();
+      setChainlinkPrice(response.toString());
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   
 
   return (
@@ -71,6 +89,9 @@ function App() {
       <button onClick={() => deploySC()}>Deploy smart contract</button>
       <h2>SC deployed at: {deployedAddress}</h2>
 
+      {/* Button to interact with SC */}
+      {/* <button onClick={() => interactSC()}>Interact with deployed smart contract</button> */}
+      
       
     </>
   );
