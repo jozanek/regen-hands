@@ -111,6 +111,44 @@ function App() {
     }
   }
 
+  async function depositFunds(): Promise<void> {
+    const abi: any = require('./MyContractAbi.json')
+    const web3 = new Web3(window.ethereum);
+    const myContract: any = new web3.eth.Contract(abi, deployedAddress);
+    myContract.handleRevert = true;
+
+    try {
+      const receipt: any = await myContract.methods.deposit(deposit).send({
+        from: connectedAccount,
+        gas: 1000000,
+        gasPrice: '10000000000',
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function getTokenBalance(): Promise<void> {
+    const abi: any = require('./MyContractAbi.json');
+    const web3 = new Web3(window.ethereum);
+    const myContract: any = new web3.eth.Contract(abi, deployedAddress);
+    myContract.handleRevert = true;
+
+    try {
+      // Get the current value of chainlink
+      console.log('token balance before: ', tokenBalance);
+      const response: string = await myContract.methods.getTokenBalance().call();
+      setTokenBalance(response.toString());
+      console.log('token balance after: ', tokenBalance);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const handleChange = event => {
+    setDeposit(event.target.value);
+  };
+
   const handleDeployedChange = event => {
     setDeployedAddress(event.target.value);
   };
@@ -141,7 +179,17 @@ function App() {
       <button onClick={() => getTokenAllowance()}>Get token allowance for this SC</button>
       <h2>Token allowance set to: {tokenAllowance}</h2>
 
-      
+      {/* Deposit LINK into deployed SC */}
+      <div>
+        <input type="text" id="message" name="message" onChange={handleChange} value={deposit} autoComplete="off" />
+        <button onClick={() => depositFunds()}>Lock funds into SC</button>
+      </div>
+
+      <div>
+        {/* Get balance of LINK tokens locked in SC */}
+        <button onClick={() => getTokenBalance()}>Get balance of tokens locked in SC</button>
+        <h2>Token balance locked in SC is: {tokenBalance}</h2>
+      </div>
     </>
   );
 }
