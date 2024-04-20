@@ -75,6 +75,42 @@ function App() {
     }
   }
 
+  async function getTokenAllowance(): Promise<void> {
+    const abi: any = require('./MyContractAbi.json');
+    const web3 = new Web3(window.ethereum);
+    const myContract: any = new web3.eth.Contract(abi, deployedAddress);
+    myContract.handleRevert = true;
+
+    try {
+      // Get the current value of chainlink
+      const response: string = await myContract.methods.getAllowance().call();
+      console.log('Token allowance:', response);
+      setTokenAllowance(response.toString());
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function approveSCToUseLink(): Promise<void> {
+    const linkContractAddress = "0x779877A7B0D9E8603169DdbD7836e478b4624789";
+    const abi: any = require('./LinkTokenAbi.json');
+    const web3 = new Web3(window.ethereum);
+    const myContract: any = new web3.eth.Contract(abi, linkContractAddress);
+    myContract.handleRevert = true;
+
+    try {
+      const receipt: any = await myContract.methods.approve(deployedAddress, 2000000).send({
+        from: connectedAccount,
+        gas: 1000000,
+        gasPrice: '10000000000',
+      });
+
+      console.log('chainlink approve response: ' + receipt.transactionHash);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const handleDeployedChange = event => {
     setDeployedAddress(event.target.value);
   };
@@ -99,6 +135,11 @@ function App() {
         <h2>Set address of deployed SC:</h2>
         <input type="text" id="message" name="message" onChange={handleDeployedChange} value={deployedAddress} autoComplete="off" />
       </div>
+
+      {/* Button to approve LINK for deployed SC */}
+      <button onClick={() => approveSCToUseLink()}>Approve LINK token to be used from within deployed SC</button>
+      <button onClick={() => getTokenAllowance()}>Get token allowance for this SC</button>
+      <h2>Token allowance set to: {tokenAllowance}</h2>
 
       
     </>
