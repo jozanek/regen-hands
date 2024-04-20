@@ -75,7 +75,9 @@ function App() {
     }
   }
 
-  
+  const handleDeployedChange = event => {
+    setDeployedAddress(event.target.value);
+  };
 
   return (
     <>
@@ -92,6 +94,12 @@ function App() {
       {/* Button to interact with SC */}
       {/* <button onClick={() => interactSC()}>Interact with deployed smart contract</button> */}
       
+      {/* Set address of deployed SC */}
+      <div>
+        <h2>Set address of deployed SC:</h2>
+        <input type="text" id="message" name="message" onChange={handleDeployedChange} value={deployedAddress} autoComplete="off" />
+      </div>
+
       
     </>
   );
